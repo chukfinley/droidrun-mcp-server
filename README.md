@@ -11,38 +11,105 @@ A text-based MCP (Model Context Protocol) server for controlling Android devices
 
 ## Prerequisites
 
-1. **Android device** connected via ADB (USB debugging enabled)
-2. **DroidRun Portal app** installed on the device with accessibility service enabled
-3. **Python 3.10+**
-4. **Claude Code CLI** installed
+- **Android device** with USB debugging enabled
+- **Python 3.10+**
+- **ADB (Android Debug Bridge)** installed on your computer
+- **Claude Code CLI** installed
 
-### Install DroidRun Portal
+---
+
+## Step 1: Install ADB
+
+### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install adb
+```
+
+### macOS
+```bash
+brew install android-platform-tools
+```
+
+### Windows
+Download from [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools) and add to PATH.
+
+---
+
+## Step 2: Enable USB Debugging on Android
+
+1. Go to **Settings > About Phone**
+2. Tap **Build Number** 7 times to enable Developer Options
+3. Go back to **Settings > System > Developer Options**
+4. Enable **USB Debugging**
+5. Connect your device via USB
+6. Accept the "Allow USB debugging" prompt on your phone
+
+Verify connection:
+```bash
+adb devices
+```
+You should see your device listed.
+
+---
+
+## Step 3: Install DroidRun
 
 ```bash
 pip install droidrun
+```
+
+### Install DroidRun Portal App on Device
+
+Run the setup command to install the Portal app on your Android device:
+
+```bash
 droidrun setup
 ```
 
-This will install the DroidRun Portal app on your connected Android device and guide you through enabling the accessibility service.
+This will:
+1. Download the DroidRun Portal APK
+2. Install it on your connected device
+3. Open the Accessibility Settings
 
-## Installation
+### Enable Accessibility Service
 
-### 1. Clone the repository
+After `droidrun setup`, you need to manually enable the accessibility service:
+
+1. The Accessibility Settings will open automatically
+2. Find **DroidRun Portal** in the list
+3. Tap on it and **enable the service**
+4. Confirm any permission dialogs
+
+You can verify the setup worked:
+```bash
+droidrun test
+```
+
+---
+
+## Step 4: Install This MCP Server
+
+### Clone the repository
 
 ```bash
 git clone https://github.com/chukfinley/droidrun-mcp-server.git
 cd droidrun-mcp-server
 ```
 
-### 2. Install dependencies
+### Install dependencies
 
 ```bash
 pip install droidrun mcp
 ```
 
-### 3. Configure Claude Code
+---
 
-Add to your `~/.claude.json` (or project-specific `.claude.json`):
+## Step 5: Configure Claude Code
+
+Add the MCP server to your Claude Code configuration.
+
+Edit `~/.claude.json` and add under `mcpServers`:
 
 ```json
 {
@@ -50,18 +117,36 @@ Add to your `~/.claude.json` (or project-specific `.claude.json`):
     "droidrun": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/path/to/droidrun-mcp-server/server.py"],
+      "args": ["/full/path/to/droidrun-mcp-server/server.py"],
       "env": {}
     }
   }
 }
 ```
 
-### 4. Restart Claude Code
+**Important:** Use the full absolute path to `server.py`!
+
+Example:
+```json
+{
+  "mcpServers": {
+    "droidrun": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/home/youruser/droidrun-mcp-server/server.py"],
+      "env": {}
+    }
+  }
+}
+```
+
+### Restart Claude Code
 
 ```bash
 claude
 ```
+
+---
 
 ## Available Tools
 
@@ -78,6 +163,8 @@ claude
 | `enter()` | Press Enter key |
 | `app(package)` | Open app by package name |
 | `apps()` | List installed apps (non-system) |
+
+---
 
 ## Usage Example
 
@@ -105,7 +192,9 @@ FOCUS: none
 4. TextView: "About phone" - (0,900,1080,1000)
 ```
 
-Then tap element 4: `tap(4)`
+Then Claude taps element 4: `tap(4)`
+
+---
 
 ## How It Works
 
@@ -116,24 +205,78 @@ The DroidRun Portal app runs on your Android device and provides:
 - Numbered overlay for visual feedback (optional)
 - Input method for text entry
 
+---
+
 ## Troubleshooting
 
 ### "No Android device connected"
-- Ensure USB debugging is enabled on your device
-- Run `adb devices` to verify connection
-- Try `adb kill-server && adb start-server`
+```bash
+# Check if device is connected
+adb devices
+
+# If not listed, try:
+adb kill-server
+adb start-server
+adb devices
+```
 
 ### "Portal is not installed"
-- Run `droidrun setup` to install the Portal app
+```bash
+droidrun setup
+```
 
 ### "Accessibility service not enabled"
-- Go to Settings > Accessibility > DroidRun Portal
-- Enable the service
+1. Go to **Settings > Accessibility**
+2. Find **DroidRun Portal**
+3. Enable the service
+
+Or run `droidrun setup` again - it will open the settings for you.
 
 ### MCP server not showing in Claude Code
-- Check your `~/.claude.json` configuration
-- Ensure the path to `server.py` is absolute and correct
-- Restart Claude Code after config changes
+1. Check your `~/.claude.json` configuration
+2. Ensure the path to `server.py` is **absolute** (starts with `/`)
+3. Restart Claude Code completely after config changes
+
+### "Permission denied" errors
+Make sure `server.py` is executable:
+```bash
+chmod +x server.py
+```
+
+---
+
+## Quick Start Summary
+
+```bash
+# 1. Install ADB
+sudo apt install adb  # Linux
+
+# 2. Enable USB debugging on your Android device
+
+# 3. Connect device and verify
+adb devices
+
+# 4. Install DroidRun
+pip install droidrun
+
+# 5. Setup Portal app on device
+droidrun setup
+
+# 6. Enable accessibility service on device (manual step!)
+
+# 7. Clone this repo
+git clone https://github.com/chukfinley/droidrun-mcp-server.git
+
+# 8. Install dependencies
+pip install droidrun mcp
+
+# 9. Add to ~/.claude.json (see Step 5 above)
+
+# 10. Restart Claude Code
+claude
+```
+
+---
 
 ## License
 
