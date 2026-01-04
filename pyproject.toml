@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "droidrun-mcp-server"
+version = "0.1.0"
+description = "MCP server for controlling Android devices via DroidRun"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "chukfinley" }
+]
+keywords = ["mcp", "android", "automation", "droidrun", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "droidrun>=0.4.0",
+    "mcp>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/chukfinley/droidrun-mcp-server"
+Repository = "https://github.com/chukfinley/droidrun-mcp-server"
+Issues = "https://github.com/chukfinley/droidrun-mcp-server/issues"
+
+[project.scripts]
+droidrun-mcp = "server:main"
